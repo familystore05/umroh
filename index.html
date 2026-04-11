@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UmrohPro Management - Ultimate Version</title>
+    <title>UmrohPro Management - Supabase Cloud Version</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
     
@@ -29,7 +30,7 @@
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
                     <h1 class="text-3xl font-black tracking-tight">Umroh<span class="text-indigo-600">Pro</span></h1>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Secure Enterprise System</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">Secure Cloud System</p>
                 </div>
                 <form @submit.prevent="login()" class="space-y-5">
                     <input type="text" x-model="loginForm.user" placeholder="Username" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 font-bold">
@@ -101,7 +102,6 @@
                                     <option value="week">Minggu Ini</option>
                                     <option value="month">Bulan Ini</option>
                                     <option value="year">Tahun Ini</option>
-                                    <option value="custom">Custom Range</option>
                                 </select>
                             </div>
                             <div class="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border">
@@ -127,7 +127,7 @@
 
                     <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-                            <h3 class="font-black text-xl tracking-tight text-slate-800">Database Keberangkatan</h3>
+                            <h3 class="font-black text-xl tracking-tight text-slate-800">Database Keberangkatan (Cloud)</h3>
                             <button @click="openAddForm()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all">
                                 <span x-text="showForm ? 'Batal' : '+ Tambah Jamaah'"></span>
                             </button>
@@ -164,7 +164,7 @@
                                     <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Jumlah Pax (Otomatis)</label>
                                     <div class="w-full p-4 bg-indigo-50 text-indigo-600 rounded-xl font-black border border-indigo-100" x-text="formJ.pax + ' PAX'"></div>
                                 </div>
-                                <button type="submit" class="md:col-span-3 bg-slate-900 text-white py-5 rounded-xl font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:bg-indigo-600 transition-all" x-text="editingIndex === null ? 'Simpan Data Jamaah' : 'Update Data Jamaah'"></button>
+                                <button type="submit" class="md:col-span-3 bg-slate-900 text-white py-5 rounded-xl font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:bg-indigo-600 transition-all" x-text="editingIndex === null ? 'Simpan ke Database' : 'Update Database'"></button>
                             </form>
                         </div>
 
@@ -181,7 +181,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
-                                    <template x-for="(j, index) in paginatedJamaah()" :key="j.id">
+                                    <template x-for="j in paginatedJamaah()" :key="j.id">
                                         <tr class="hover:bg-slate-50/80 transition-colors">
                                             <td class="px-8 py-6">
                                                 <p class="text-[10px] font-black text-indigo-600 uppercase mb-1" x-text="j.paket"></p>
@@ -220,11 +220,9 @@
                             <div class="flex items-center gap-4">
                                 <span class="text-[10px] font-black text-slate-400 uppercase">Tampilkan:</span>
                                 <select x-model="itemsPerPage" @change="currentPage = 1" class="bg-white border px-3 py-1.5 rounded-lg text-xs font-black outline-none cursor-pointer">
-                                    <option value="5">5</option>
                                     <option value="10">10</option>
                                     <option value="50">50</option>
                                     <option value="100">100</option>
-                                    <option value="500">500</option>
                                     <option value="-1">Semua</option>
                                 </select>
                             </div>
@@ -264,7 +262,7 @@
                                     <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Nominal (IDR)</label>
                                     <input type="text" :value="formatInput(formK.jumlah)" @input="formK.jumlah = parseInput($event.target.value)" placeholder="500.000" class="w-full p-4 mt-1 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-rose-500 font-bold" required>
                                 </div>
-                                <button type="submit" class="w-full bg-rose-600 text-white py-5 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-rose-500/20 hover:bg-slate-900 transition-all">Simpan Transaksi</button>
+                                <button type="submit" class="w-full bg-rose-600 text-white py-5 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-rose-500/20 hover:bg-slate-900 transition-all">Simpan Cloud</button>
                             </form>
                         </div>
 
@@ -280,7 +278,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
-                                        <template x-for="(k, index) in kas" :key="index">
+                                        <template x-for="k in kas" :key="k.id">
                                             <tr class="hover:bg-slate-50">
                                                 <td class="px-8 py-6">
                                                     <span :class="k.kategori === 'Zakat' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'" class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest" x-text="k.kategori === 'Zakat' ? 'Zakat Maal' : 'Operasional'"></span>
@@ -289,7 +287,7 @@
                                                 </td>
                                                 <td class="px-8 py-6 text-center font-black text-rose-600" x-text="'- ' + formatIDR(k.jumlah)"></td>
                                                 <td class="px-8 py-6 text-center">
-                                                    <button @click="deleteKas(index)" class="p-3 text-slate-300 hover:text-rose-600 transition-all"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                                                    <button @click="deleteKas(k.id)" class="p-3 text-slate-300 hover:text-rose-600 transition-all"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                                                 </td>
                                             </tr>
                                         </template>
@@ -302,7 +300,7 @@
             </main>
 
             <footer class="p-10 text-center text-slate-400">
-                <p class="text-[10px] font-black uppercase tracking-[0.4em]">UmrohPro Enterprise • v7.0 Ultimate</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em]">UmrohPro Cloud • v7.0 Ultimate</p>
             </footer>
         </div>
     </template>
@@ -316,20 +314,37 @@
                 editingIndex: null,
                 jamaah: [],
                 kas: [],
-                filters: { time: 'all', status: 'all', start: '', end: '' },
+                client: null,
+                filters: { time: 'all', status: 'all' },
                 currentPage: 1,
                 itemsPerPage: 10,
                 loginForm: { user: '', pass: '' },
                 formJ: { id: null, paket: '', nama: '', wa: '', tanggal: new Date().toISOString().split('T')[0], komisi: 0, pax: 0, status: 'Pending' },
                 formK: { kategori: 'Operasional', ket: '', jumlah: 0 },
 
-                init() {
-                    const savedJ = localStorage.getItem('umroh_db_j');
-                    if (savedJ) this.jamaah = JSON.parse(savedJ);
-                    const savedK = localStorage.getItem('umroh_db_k');
-                    if (savedK) this.kas = JSON.parse(savedK);
-                    const session = localStorage.getItem('umroh_session_final');
-                    if (session) this.isLoggedIn = true;
+                async init() {
+                    // 1. Inisialisasi Koneksi Supabase
+                    const SB_URL = "https://unjvejcnoydwfgbwzbkk.supabase.co";
+                    const SB_KEY = "sb_publishable_zEhLY8Ktm3e2t_hGvjwQ1g_yPaQz1W3";
+                    this.client = supabase.createClient(SB_URL, SB_KEY);
+
+                    // 2. Cek Login
+                    if (localStorage.getItem('umroh_session_final')) this.isLoggedIn = true;
+
+                    // 3. Ambil Data
+                    await this.fetchData();
+                },
+
+                async fetchData() {
+                    if (!this.client) return;
+                    
+                    // Ambil Data Jamaah
+                    const { data: jData, error: jErr } = await this.client.from('jamaah').select('*').order('id', { ascending: false });
+                    if (jData) this.jamaah = jData;
+
+                    // Ambil Data Kas
+                    const { data: kData, error: kErr } = await this.client.from('kas').select('*').order('id', { ascending: false });
+                    if (kData) this.kas = kData;
                 },
 
                 login() {
@@ -349,6 +364,7 @@
                     return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 },
                 parseInput(val) {
+                    if (typeof val !== 'string') return val;
                     return parseInt(val.replace(/\./g, "")) || 0;
                 },
 
@@ -362,25 +378,29 @@
                         this.showForm = false;
                         this.editingIndex = null;
                     } else {
-                        this.formJ = { id: Date.now(), paket: '', nama: '', wa: '', tanggal: new Date().toISOString().split('T')[0], komisi: 0, pax: 0, status: 'Pending' };
+                        this.formJ = { id: null, paket: '', nama: '', wa: '', tanggal: new Date().toISOString().split('T')[0], komisi: 0, pax: 0, status: 'Pending' };
                         this.showForm = true;
                     }
                 },
 
-                // MODIFIKASI: Menambahkan fungsi untuk list paket unik
                 getUniquePaket() {
                     const paketSet = new Set(this.jamaah.map(j => j.paket));
                     return Array.from(paketSet).filter(p => p && p.trim() !== '');
                 },
 
-                saveJamaah() {
+                async saveJamaah() {
+                    const payload = { ...this.formJ };
+                    
                     if (this.editingIndex !== null) {
-                        const idx = this.jamaah.findIndex(item => item.id === this.editingIndex);
-                        this.jamaah[idx] = { ...this.formJ };
+                        // Update
+                        await this.client.from('jamaah').update(payload).eq('id', this.editingIndex);
                     } else {
-                        this.jamaah.unshift({ ...this.formJ, id: Date.now() });
+                        // Insert
+                        payload.id = Date.now();
+                        await this.client.from('jamaah').insert([payload]);
                     }
-                    this.save();
+
+                    await this.fetchData();
                     this.showForm = false;
                     this.editingIndex = null;
                 },
@@ -393,28 +413,46 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
-                toggleCair(id) {
-                    const idx = this.jamaah.findIndex(i => i.id === id);
-                    this.jamaah[idx].status = this.jamaah[idx].status === 'Cair' ? 'Pending' : 'Cair';
-                    this.save();
+                async toggleCair(id) {
+                    const item = this.jamaah.find(i => i.id === id);
+                    const newStatus = item.status === 'Cair' ? 'Pending' : 'Cair';
+                    await this.client.from('jamaah').update({ status: newStatus }).eq('id', id);
+                    await this.fetchData();
                 },
 
-                deleteJamaah(id) {
-                    if(confirm('Hapus data ini?')) {
-                        this.jamaah = this.jamaah.filter(i => i.id !== id);
-                        this.save();
+                async deleteJamaah(id) {
+                    if(confirm('Hapus data ini dari cloud?')) {
+                        await this.client.from('jamaah').delete().eq('id', id);
+                        await this.fetchData();
                     }
                 },
 
-                // IMPORT & EXPORT LOGIC
+                async addKas() {
+                    const payload = { 
+                        ...this.formK, 
+                        tanggal: new Date().toLocaleDateString('id-ID') 
+                    };
+                    await this.client.from('kas').insert([payload]);
+                    this.formK = { kategori: 'Operasional', ket: '', jumlah: 0 };
+                    await this.fetchData();
+                },
+
+                async deleteKas(id) {
+                    if(confirm('Hapus transaksi ini?')) {
+                        await this.client.from('kas').delete().eq('id', id);
+                        await this.fetchData();
+                    }
+                },
+
+                // EXPORT/IMPORT
                 exportCSV() {
-                    if (this.jamaah.length === 0) return alert('Tidak ada data untuk diekspor!');
+                    if (this.jamaah.length === 0) return alert('Tidak ada data!');
                     const csv = Papa.unparse(this.jamaah);
                     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.setAttribute('download', 'data_jamaah_umroh.csv');
+                    link.setAttribute('download', 'umroh_cloud_backup.csv');
                     link.click();
                 },
 
@@ -424,7 +462,7 @@
                     Papa.parse(file, {
                         header: true,
                         skipEmptyLines: true,
-                        complete: (results) => {
+                        complete: async (results) => {
                             const imported = results.data.map(row => ({
                                 id: row.id ? Number(row.id) : Date.now() + Math.random(),
                                 paket: row.paket || '',
@@ -435,34 +473,29 @@
                                 pax: Number(row.pax) || 0,
                                 status: row.status || 'Pending'
                             }));
-                            if (confirm(`Impor ${imported.length} data jamaah?`)) {
-                                this.jamaah = [...imported, ...this.jamaah];
-                                this.save();
-                                alert('Impor Berhasil!');
+                            if (confirm(`Impor ${imported.length} data ke Cloud?`)) {
+                                await this.client.from('jamaah').insert(imported);
+                                await this.fetchData();
+                                alert('Berhasil Impor!');
                             }
                             event.target.value = '';
                         }
                     });
                 },
 
-                // PAGINASI & FILTER LOGIC
+                // FILTER & PAGINASI
                 filteredJamaahList() {
                     return this.jamaah.filter(item => {
                         if (this.filters.status !== 'all' && item.status !== this.filters.status) return false;
                         const itemDate = new Date(item.tanggal);
                         const now = new Date();
-                        const startOfToday = new Date(now.setHours(0,0,0,0));
-                        if (this.filters.time === 'today') return itemDate >= startOfToday;
+                        if (this.filters.time === 'today') return itemDate.toDateString() === now.toDateString();
                         if (this.filters.time === 'week') {
-                            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-                            return itemDate >= startOfWeek;
+                            const diff = (now - itemDate) / (1000 * 60 * 60 * 24);
+                            return diff <= 7;
                         }
-                        if (this.filters.time === 'month') return itemDate.getMonth() === new Date().getMonth() && itemDate.getFullYear() === new Date().getFullYear();
-                        if (this.filters.time === 'year') return itemDate.getFullYear() === new Date().getFullYear();
-                        if (this.filters.time === 'custom') {
-                            if (!this.filters.start || !this.filters.end) return true;
-                            return item.tanggal >= this.filters.start && item.tanggal <= this.filters.end;
-                        }
+                        if (this.filters.time === 'month') return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                        if (this.filters.time === 'year') return itemDate.getFullYear() === now.getFullYear();
                         return true;
                     });
                 },
@@ -480,21 +513,7 @@
                     return Math.ceil(filtered.length / this.itemsPerPage) || 1;
                 },
 
-                addKas() {
-                    this.kas.unshift({ ...this.formK, tanggal: new Date().toLocaleDateString('id-ID') });
-                    this.save();
-                    this.formK = { kategori: 'Operasional', ket: '', jumlah: 0 };
-                },
-
-                deleteKas(index) {
-                    if(confirm('Hapus?')) { this.kas.splice(index, 1); this.save(); }
-                },
-
-                save() {
-                    localStorage.setItem('umroh_db_j', JSON.stringify(this.jamaah));
-                    localStorage.setItem('umroh_db_k', JSON.stringify(this.kas));
-                },
-
+                // STATISTIK
                 totalPax() { return this.filteredJamaahList().reduce((s, i) => s + Number(i.pax), 0); },
                 totalKomisi() { return this.filteredJamaahList().reduce((s, i) => s + (i.pax * i.komisi), 0); },
                 komisiCair() { return this.filteredJamaahList().filter(i => i.status === 'Cair').reduce((s, i) => s + (i.pax * i.komisi), 0); },
