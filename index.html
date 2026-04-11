@@ -78,6 +78,16 @@
                             <option value="custom">Rentang Custom</option>
                         </select>
                     </div>
+
+                    <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border w-full md:w-auto">
+                        <span class="text-[10px] font-black text-slate-400 uppercase">Status Komisi:</span>
+                        <select x-model="filters.status" @change="currentPageJ = 1" class="bg-transparent text-xs font-black outline-none w-full">
+                            <option value="all">Semua Status</option>
+                            <option value="Dibayar">Sudah Cair</option>
+                            <option value="Pending">Belum Cair (Pending)</option>
+                        </select>
+                    </div>
+
                     <template x-if="filters.time === 'custom'">
                         <div class="flex items-center gap-2">
                             <input type="date" x-model="filters.start" class="bg-white border p-2 rounded-xl text-xs font-bold">
@@ -150,6 +160,11 @@
                                             </td>
                                         </tr>
                                     </template>
+                                    <template x-if="paginatedJamaah().length === 0">
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-10 text-center text-slate-400 font-bold">Tidak ada data jamaah ditemukan.</td>
+                                        </tr>
+                                    </template>
                                 </tbody>
                             </table>
                         </div>
@@ -215,7 +230,9 @@
             return {
                 isLoggedIn: false, activeTab: 'jamaah', showFormJ: false, editingIdJ: null,
                 jamaah: [], kas: [], client: null, currentPageJ: 1, perPageJ: 10,
-                loginForm: { user: '', pass: '' }, filters: { time: 'all', start: '', end: '' },
+                loginForm: { user: '', pass: '' }, 
+                // PERBAIKAN: Default filter status 'all'
+                filters: { time: 'all', start: '', end: '', status: 'all' },
                 formJ: { paket: '', nama: '', phone: '', tanggal: '', komisi: 0, pax: 0, status: 'Pending' },
                 formK: { kategori: 'Operasional', ket: '', jumlah: 0 },
 
@@ -273,10 +290,8 @@
                     };
 
                     if (this.editingIdJ) {
-                        // Update data berdasarkan ID yang unik
                         await this.client.from('jamaah').update(payload).eq('id', this.editingIdJ);
                     } else {
-                        // Insert data baru dengan ID unik
                         await this.client.from('jamaah').insert([{...payload, id: Date.now()}]);
                     }
                     await this.fetchData();
@@ -285,18 +300,9 @@
 
                 async toggleStatus(item) {
                     const newStatus = item.status === 'Dibayar' ? 'Pending' : 'Dibayar';
-                    
-                    const { error } = await this.client
-                        .from('jamaah')
-                        .update({ status: newStatus })
-                        .eq('id', item.id);
-
-                    if (error) {
-                        alert("Gagal mengubah status: " + error.message);
-                    } else {
-                        // Update lokal agar UI responsif
-                        item.status = newStatus;
-                    }
+                    const { error } = await this.client.from('jamaah').update({ status: newStatus }).eq('id', item.id);
+                    if (error) { alert("Gagal mengubah status: " + error.message); } 
+                    else { item.status = newStatus; }
                 },
 
                 editJamaah(item) {
@@ -319,30 +325,43 @@
                     if(confirm('Hapus?')) { await this.client.from('kas').delete().eq('id', id); await this.fetchData(); }
                 },
 
-                applyFilter(list) {
+                applyFilter(list, isJamaah = false) {
                     return list.filter(item => {
+                        // 1. Filter Waktu
                         const itemDate = new Date(item.tanggal);
                         itemDate.setHours(0,0,0,0);
                         const now = new Date(); now.setHours(0,0,0,0);
-                        if (this.filters.time === 'today') return itemDate.getTime() === now.getTime();
-                        if (this.filters.time === 'month') return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
-                        if (this.filters.time === 'year') return itemDate.getFullYear() === now.getFullYear();
-                        if (this.filters.time === 'custom') {
-                            if (!this.filters.start || !this.filters.end) return true;
-                            return itemDate >= new Date(this.filters.start) && itemDate <= new Date(this.filters.end);
+                        
+                        let timeMatch = true;
+                        if (this.filters.time === 'today') timeMatch = itemDate.getTime() === now.getTime();
+                        else if (this.filters.time === 'month') timeMatch = itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                        else if (this.filters.time === 'year') timeMatch = itemDate.getFullYear() === now.getFullYear();
+                        else if (this.filters.time === 'custom') {
+                            if (this.filters.start && this.filters.end) {
+                                timeMatch = itemDate >= new Date(this.filters.start) && itemDate <= new Date(this.filters.end);
+                            }
                         }
-                        return true;
+
+                        // 2. Filter Status (Hanya untuk jamaah)
+                        let statusMatch = true;
+                        if (isJamaah && this.filters.status !== 'all') {
+                            statusMatch = item.status === this.filters.status;
+                        }
+
+                        return timeMatch && statusMatch;
                     });
                 },
 
-                filteredJamaah() { return this.applyFilter(this.jamaah); },
+                // Fungsi filter jamaah yang sudah mencakup filter waktu dan status komisi
+                filteredJamaah() { return this.applyFilter(this.jamaah, true); },
+                
                 paginatedJamaah() {
                     const f = this.filteredJamaah(); if (this.perPageJ === 'all') return f;
                     const limit = parseInt(this.perPageJ); return f.slice((this.currentPageJ - 1) * limit, this.currentPageJ * limit);
                 },
                 totalPagesJ() { return Math.ceil(this.filteredJamaah().length / parseInt(this.perPageJ)) || 1; },
 
-                filteredKas() { return this.applyFilter(this.kas); },
+                filteredKas() { return this.applyFilter(this.kas, false); },
 
                 komisiDibayar() { return this.filteredJamaah().filter(i => i.status === 'Dibayar').reduce((s, i) => s + (i.pax * i.komisi), 0); },
                 komisiPending() { return this.filteredJamaah().filter(i => i.status === 'Pending').reduce((s, i) => s + (i.pax * i.komisi), 0); },
