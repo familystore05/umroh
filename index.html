@@ -27,7 +27,7 @@
                 <form @submit.prevent="login()" class="space-y-4">
                     <input type="text" x-model="loginForm.user" placeholder="Username" class="w-full p-4 bg-slate-50 border rounded-xl outline-none font-bold">
                     <input type="password" x-model="loginForm.pass" placeholder="Password" class="w-full p-4 bg-slate-50 border rounded-xl outline-none font-bold">
-                    <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest">Login</button>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black uppercase text-xs">Login</button>
                 </form>
             </div>
         </div>
@@ -38,53 +38,50 @@
             <header class="bg-white border-b border-slate-200 p-4 md:p-6 flex flex-col md:flex-row justify-between items-center sticky top-0 z-50 gap-4">
                 <div class="flex items-center justify-between w-full md:w-auto gap-4">
                     <h2 class="font-black text-xl tracking-tighter">Umroh<span class="text-indigo-600">Pro</span></h2>
-                    <nav class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl overflow-x-auto">
-                        <button @click="activeTab = 'jamaah'; currentPageJ = 1" :class="activeTab === 'jamaah' ? 'tab-active' : 'text-slate-500'" class="whitespace-nowrap px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Jamaah</button>
-                        <button @click="activeTab = 'kas'; currentPageK = 1" :class="activeTab === 'kas' ? 'tab-active' : 'text-slate-500'" class="whitespace-nowrap px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Kas & Zakat</button>
+                    <nav class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                        <button @click="activeTab = 'jamaah'" :class="activeTab === 'jamaah' ? 'tab-active' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Jamaah</button>
+                        <button @click="activeTab = 'kas'" :class="activeTab === 'kas' ? 'tab-active' : 'text-slate-500'" class="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Kas & Zakat</button>
                     </nav>
                 </div>
-                <button @click="logout()" class="text-rose-600 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-rose-50 w-full md:w-auto text-center border md:border-none">Keluar</button>
+                <button @click="logout()" class="text-rose-600 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl border">Keluar</button>
             </header>
 
             <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-1">
                 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-white p-6 rounded-3xl border shadow-sm">
-                        <p class="text-[10px] font-black text-slate-400 uppercase">Total Jamaah</p>
-                        <h3 class="text-2xl font-black" x-text="totalPax() + ' Pax'"></h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white p-5 rounded-3xl border shadow-sm">
+                        <p class="text-[9px] font-black text-slate-400 uppercase">Komisi Dibayar</p>
+                        <h3 class="text-lg font-black text-emerald-600" x-text="formatIDR(komisiDibayar())"></h3>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl border shadow-sm">
-                        <p class="text-[10px] font-black text-slate-400 uppercase">Total Komisi</p>
-                        <h3 class="text-xl font-black text-indigo-600" x-text="formatIDR(totalKomisi())"></h3>
+                    <div class="bg-white p-5 rounded-3xl border shadow-sm">
+                        <p class="text-[9px] font-black text-slate-400 uppercase">Komisi Pending</p>
+                        <h3 class="text-lg font-black text-amber-500" x-text="formatIDR(komisiPending())"></h3>
                     </div>
-                    <div class="bg-amber-500 p-6 rounded-3xl text-white shadow-lg">
-                        <p class="text-[10px] font-black uppercase opacity-80">Wajib Zakat (Sisa)</p>
-                        <h3 class="text-xl font-black" x-text="formatIDR(wajibZakat() - zakatTerbayar())"></h3>
+                    <div class="bg-amber-500 p-5 rounded-3xl text-white shadow-lg">
+                        <p class="text-[9px] font-black uppercase opacity-80">Zakat (Dari Komisi Cair)</p>
+                        <h3 class="text-lg font-black" x-text="formatIDR(wajibZakat() - zakatTerbayar())"></h3>
                     </div>
-                    <div class="bg-slate-900 p-6 rounded-3xl text-white">
-                        <p class="text-[10px] font-black uppercase opacity-80">Laba Bersih</p>
-                        <h3 class="text-xl font-black" x-text="formatIDR(labaBersih())"></h3>
+                    <div class="bg-slate-900 p-5 rounded-3xl text-white">
+                        <p class="text-[9px] font-black uppercase opacity-80">Laba Bersih Riil</p>
+                        <h3 class="text-lg font-black text-emerald-400" x-text="formatIDR(labaBersih())"></h3>
                     </div>
                 </div>
 
                 <div class="bg-white p-4 rounded-3xl border shadow-sm flex flex-wrap items-center gap-4 mb-6">
                     <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border w-full md:w-auto">
                         <span class="text-[10px] font-black text-slate-400 uppercase">Periode:</span>
-                        <select x-model="filters.time" @change="currentPageJ = 1; currentPageK = 1" class="bg-transparent text-xs font-black outline-none w-full">
+                        <select x-model="filters.time" @change="currentPageJ = 1" class="bg-transparent text-xs font-black outline-none w-full">
                             <option value="all">Semua Waktu</option>
                             <option value="today">Hari Ini</option>
-                            <option value="yesterday">Kemarin</option>
-                            <option value="7days">7 Hari Terakhir</option>
-                            <option value="30days">30 Hari Terakhir</option>
                             <option value="month">Bulan Ini</option>
                             <option value="year">Tahun Ini</option>
                             <option value="custom">Rentang Custom</option>
                         </select>
                     </div>
                     <template x-if="filters.time === 'custom'">
-                        <div class="flex items-center gap-2 w-full md:w-auto">
-                            <input type="date" x-model="filters.start" @change="currentPageJ = 1; currentPageK = 1" class="bg-white border p-2 rounded-xl text-xs font-bold w-1/2 md:w-auto">
-                            <input type="date" x-model="filters.end" @change="currentPageJ = 1; currentPageK = 1" class="bg-white border p-2 rounded-xl text-xs font-bold w-1/2 md:w-auto">
+                        <div class="flex items-center gap-2">
+                            <input type="date" x-model="filters.start" class="bg-white border p-2 rounded-xl text-xs font-bold">
+                            <input type="date" x-model="filters.end" class="bg-white border p-2 rounded-xl text-xs font-bold">
                         </div>
                     </template>
                 </div>
@@ -92,7 +89,7 @@
                 <div x-show="activeTab === 'jamaah'" class="fade-in space-y-6">
                     <div class="bg-white rounded-[2rem] border shadow-sm overflow-hidden">
                         <div class="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                            <h3 class="font-black text-lg">Database Jamaah</h3>
+                            <h3 class="font-black text-lg">Data Jamaah</h3>
                             <button @click="openAddJamaah()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" x-text="showFormJ ? 'Batal' : '+ Tambah'"></button>
                         </div>
 
@@ -104,16 +101,17 @@
                                         <template x-for="p in listPaket()" :key="p"><option :value="p"></option></template>
                                     </datalist>
                                 </div>
-                                <input type="text" x-model="formJ.nama" @input="calcPax()" placeholder="Nama (Pisah Koma)" class="p-4 rounded-xl border font-bold" required>
-                                <input type="text" x-model="formJ.phone" placeholder="No WA (Contoh: 0812...)" class="p-4 rounded-xl border font-bold">
+                                <input type="text" x-model="formJ.nama" @input="calcPax()" placeholder="Nama Jamaah" class="p-4 rounded-xl border font-bold" required>
+                                <input type="text" x-model="formJ.phone" placeholder="No WhatsApp" class="p-4 rounded-xl border font-bold">
                                 <input type="date" x-model="formJ.tanggal" class="p-4 rounded-xl border font-bold" required>
                                 <div class="relative">
                                     <input type="text" :value="formatInput(formJ.komisi)" @input="formJ.komisi = parseInput($event.target.value)" placeholder="Komisi / Pax" class="w-full p-4 rounded-xl border font-bold" required>
                                     <span class="absolute right-4 top-4 text-[10px] font-black text-slate-400">IDR</span>
                                 </div>
-                                <div class="p-4 bg-indigo-50 rounded-xl font-black text-indigo-600 flex items-center justify-between">
-                                    <span>Total:</span> <span x-text="formJ.pax + ' PAX'"></span>
-                                </div>
+                                <select x-model="formJ.status" class="p-4 rounded-xl border font-bold bg-white">
+                                    <option value="Pending">Status: Pending</option>
+                                    <option value="Dibayar">Status: Dibayar</option>
+                                </select>
                                 <button type="submit" class="bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs" x-text="editingIdJ ? 'Update Data' : 'Simpan Data'"></button>
                             </form>
                         </div>
@@ -123,8 +121,8 @@
                                 <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
                                     <tr>
                                         <th class="px-6 py-4">Jamaah</th>
-                                        <th class="px-6 py-4 text-center">Pax</th>
-                                        <th class="px-6 py-4 text-right">Total Komisi</th>
+                                        <th class="px-6 py-4 text-center">Status Komisi</th>
+                                        <th class="px-6 py-4 text-right">Nominal</th>
                                         <th class="px-6 py-4 text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -135,16 +133,20 @@
                                                 <p class="font-black" x-text="j.nama"></p>
                                                 <p class="text-[10px] text-slate-400" x-text="j.paket + ' • ' + j.tanggal"></p>
                                                 <template x-if="j.phone">
-                                                    <a :href="'https://wa.me/' + formatWA(j.phone)" target="_blank" class="text-[10px] text-emerald-600 font-black mt-1 inline-block">📞 WA: <span x-text="j.phone"></span></a>
+                                                    <a :href="'https://wa.me/' + formatWA(j.phone)" target="_blank" class="text-[10px] text-emerald-600 font-black mt-1 inline-block">📞 <span x-text="j.phone"></span></a>
                                                 </template>
                                             </td>
-                                            <td class="px-6 py-4 text-center font-bold" x-text="j.pax"></td>
-                                            <td class="px-6 py-4 text-right font-black" x-text="formatIDR(j.pax * j.komisi)"></td>
                                             <td class="px-6 py-4 text-center">
-                                                <div class="flex gap-2 justify-center">
-                                                    <button @click="editJamaah(j)" class="text-indigo-600 font-bold">Edit</button>
-                                                    <button @click="deleteJamaah(j.id)" class="text-rose-600 font-bold">Hapus</button>
-                                                </div>
+                                                <button @click="toggleStatus(j)" 
+                                                    :class="j.status === 'Dibayar' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
+                                                    class="px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-tighter transition-colors">
+                                                    <span x-text="j.status"></span>
+                                                </button>
+                                            </td>
+                                            <td class="px-6 py-4 text-right font-black" x-text="formatIDR(j.pax * j.komisi)"></td>
+                                            <td class="px-6 py-4 text-center font-bold">
+                                                <button @click="editJamaah(j)" class="text-indigo-600 mr-2">Edit</button>
+                                                <button @click="deleteJamaah(j.id)" class="text-rose-600">Hapus</button>
                                             </td>
                                         </tr>
                                     </template>
@@ -152,7 +154,7 @@
                             </table>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="p-4 bg-slate-50 border-t flex items-center justify-between">
                             <select x-model="perPageJ" @change="currentPageJ = 1" class="bg-white border rounded-lg px-2 py-1 text-xs font-bold outline-none">
                                 <option value="5">5</option><option value="10">10</option><option value="50">50</option><option value="all">Semua</option>
                             </select>
@@ -183,27 +185,24 @@
                             </form>
                         </div>
 
-                        <div class="lg:col-span-2 bg-white rounded-[2rem] border shadow-sm overflow-hidden">
-                            <div class="p-6 border-b bg-slate-50/50"><h3 class="font-black">Arsip Kas</h3></div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-xs">
+                        <div class="lg:col-span-2 bg-white rounded-[2rem] border shadow-sm overflow-hidden text-xs">
+                             <div class="p-6 border-b bg-slate-50/50 flex justify-between items-center"><h3 class="font-black">Riwayat Kas</h3></div>
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-left">
                                     <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
-                                        <tr><th class="px-6 py-4">Ket</th><th class="px-6 py-4 text-right">Nominal</th><th class="px-6 py-4 text-center">Aksi</th></tr>
+                                        <tr><th class="px-6 py-4">Keterangan</th><th class="px-6 py-4 text-right">Nominal</th><th class="px-6 py-4"></th></tr>
                                     </thead>
-                                    <tbody>
-                                        <template x-for="k in paginatedKas()" :key="k.id">
-                                            <tr class="hover:bg-slate-50 border-b">
-                                                <td class="px-6 py-4">
-                                                    <p class="font-black" x-text="k.ket"></p>
-                                                    <p class="text-[10px] text-rose-600 font-black uppercase" x-text="k.kategori"></p>
-                                                </td>
+                                    <tbody class="divide-y">
+                                        <template x-for="k in filteredKas()" :key="k.id">
+                                            <tr>
+                                                <td class="px-6 py-4"><span class="font-black" x-text="k.ket"></span><br><span class="text-[9px] text-rose-500 font-black uppercase" x-text="k.kategori"></span></td>
                                                 <td class="px-6 py-4 text-right font-black text-rose-600" x-text="formatIDR(k.jumlah)"></td>
-                                                <td class="px-6 py-4 text-center"><button @click="deleteKas(k.id)" class="text-slate-300 hover:text-rose-600 font-bold">Hapus</button></td>
+                                                <td class="px-6 py-4 text-center"><button @click="deleteKas(k.id)" class="text-slate-300 hover:text-rose-600 font-bold">×</button></td>
                                             </tr>
                                         </template>
                                     </tbody>
                                 </table>
-                            </div>
+                             </div>
                         </div>
                     </div>
                 </div>
@@ -215,9 +214,9 @@
         function appData() {
             return {
                 isLoggedIn: false, activeTab: 'jamaah', showFormJ: false, editingIdJ: null,
-                jamaah: [], kas: [], client: null, currentPageJ: 1, perPageJ: 10, currentPageK: 1, perPageK: 10,
+                jamaah: [], kas: [], client: null, currentPageJ: 1, perPageJ: 10,
                 loginForm: { user: '', pass: '' }, filters: { time: 'all', start: '', end: '' },
-                formJ: { paket: '', nama: '', phone: '', tanggal: '', komisi: 0, pax: 0 },
+                formJ: { paket: '', nama: '', phone: '', tanggal: '', komisi: 0, pax: 0, status: 'Pending' },
                 formK: { kategori: 'Operasional', ket: '', jumlah: 0 },
 
                 async init() {
@@ -257,40 +256,53 @@
                 calcPax() { this.formJ.pax = this.formJ.nama.split(',').filter(n => n.trim() !== '').length; },
 
                 openAddJamaah() {
-                    this.showFormJ = !this.showFormJ; this.editingIdJ = null;
-                    this.formJ = { paket: '', nama: '', phone: '', tanggal: new Date().toISOString().split('T')[0], komisi: 0, pax: 0 };
+                    this.showFormJ = !this.showFormJ; 
+                    this.editingIdJ = null;
+                    this.formJ = { paket: '', nama: '', phone: '', tanggal: new Date().toISOString().split('T')[0], komisi: 0, pax: 0, status: 'Pending' };
                 },
 
                 async saveJamaah() {
-                    try {
-                        const payload = { 
-                            paket: this.formJ.paket,
-                            nama: this.formJ.nama,
-                            phone: this.formJ.phone,
-                            tanggal: this.formJ.tanggal,
-                            komisi: this.formJ.komisi,
-                            pax: this.formJ.pax,
-                            status: 'Cair' // Pastikan default status ada jika diperlukan
-                        };
+                    const payload = { 
+                        paket: this.formJ.paket,
+                        nama: this.formJ.nama,
+                        phone: this.formJ.phone,
+                        tanggal: this.formJ.tanggal,
+                        komisi: this.formJ.komisi,
+                        pax: this.formJ.pax,
+                        status: this.formJ.status 
+                    };
 
-                        if (this.editingIdJ) {
-                            const { error } = await this.client.from('jamaah').update(payload).eq('id', this.editingIdJ);
-                            if (error) throw error;
-                        } else {
-                            const { error } = await this.client.from('jamaah').insert([{...payload, id: Date.now()}]);
-                            if (error) throw error;
-                        }
-                        await this.fetchData();
-                        this.openAddJamaah();
-                        alert('Data berhasil disimpan!');
-                    } catch (err) {
-                        console.error(err);
-                        alert('Gagal simpan! Pastikan kolom "phone" sudah ditambahkan di Supabase.');
+                    if (this.editingIdJ) {
+                        // Update data berdasarkan ID yang unik
+                        await this.client.from('jamaah').update(payload).eq('id', this.editingIdJ);
+                    } else {
+                        // Insert data baru dengan ID unik
+                        await this.client.from('jamaah').insert([{...payload, id: Date.now()}]);
+                    }
+                    await this.fetchData();
+                    this.openAddJamaah();
+                },
+
+                async toggleStatus(item) {
+                    const newStatus = item.status === 'Dibayar' ? 'Pending' : 'Dibayar';
+                    
+                    const { error } = await this.client
+                        .from('jamaah')
+                        .update({ status: newStatus })
+                        .eq('id', item.id);
+
+                    if (error) {
+                        alert("Gagal mengubah status: " + error.message);
+                    } else {
+                        // Update lokal agar UI responsif
+                        item.status = newStatus;
                     }
                 },
 
                 editJamaah(item) {
-                    this.formJ = { ...item }; this.editingIdJ = item.id; this.showFormJ = true;
+                    this.formJ = { ...item }; 
+                    this.editingIdJ = item.id; 
+                    this.showFormJ = true;
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
@@ -313,18 +325,6 @@
                         itemDate.setHours(0,0,0,0);
                         const now = new Date(); now.setHours(0,0,0,0);
                         if (this.filters.time === 'today') return itemDate.getTime() === now.getTime();
-                        if (this.filters.time === 'yesterday') {
-                            const y = new Date(now); y.setDate(now.getDate() - 1);
-                            return itemDate.getTime() === y.getTime();
-                        }
-                        if (this.filters.time === '7days') {
-                            const l = new Date(now); l.setDate(now.getDate() - 7);
-                            return itemDate >= l;
-                        }
-                        if (this.filters.time === '30days') {
-                            const l = new Date(now); l.setDate(now.getDate() - 30);
-                            return itemDate >= l;
-                        }
                         if (this.filters.time === 'month') return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
                         if (this.filters.time === 'year') return itemDate.getFullYear() === now.getFullYear();
                         if (this.filters.time === 'custom') {
@@ -343,18 +343,13 @@
                 totalPagesJ() { return Math.ceil(this.filteredJamaah().length / parseInt(this.perPageJ)) || 1; },
 
                 filteredKas() { return this.applyFilter(this.kas); },
-                paginatedKas() {
-                    const f = this.filteredKas(); if (this.perPageK === 'all') return f;
-                    const limit = parseInt(this.perPageK); return f.slice((this.currentPageK - 1) * limit, this.currentPageK * limit);
-                },
-                totalPagesK() { return Math.ceil(this.filteredKas().length / parseInt(this.perPageK)) || 1; },
 
-                totalPax() { return this.filteredJamaah().reduce((s, i) => s + Number(i.pax), 0); },
-                totalKomisi() { return this.filteredJamaah().reduce((s, i) => s + (i.pax * i.komisi), 0); },
-                wajibZakat() { return this.totalKomisi() * 0.025; },
+                komisiDibayar() { return this.filteredJamaah().filter(i => i.status === 'Dibayar').reduce((s, i) => s + (i.pax * i.komisi), 0); },
+                komisiPending() { return this.filteredJamaah().filter(i => i.status === 'Pending').reduce((s, i) => s + (i.pax * i.komisi), 0); },
+                wajibZakat() { return this.komisiDibayar() * 0.025; },
                 zakatTerbayar() { return this.filteredKas().filter(i => i.kategori === 'Zakat').reduce((s, i) => s + Number(i.jumlah), 0); },
                 totalKeluar() { return this.filteredKas().reduce((s, i) => s + Number(i.jumlah), 0); },
-                labaBersih() { return this.totalKomisi() - this.totalKeluar(); }
+                labaBersih() { return this.komisiDibayar() - this.totalKeluar(); }
             }
         }
     </script>
